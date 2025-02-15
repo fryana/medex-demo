@@ -125,27 +125,27 @@ if uploaded_file is not None:
             # Store the conversation history (initial message)
             st.session_state.conversation_history.append(f"Gemini: {ai_report}")
 
+            # Begin the chat interface with Gemini
+            st.subheader("💬 Chat with AI")
+
+            if user_prompt := st.chat_input("Ask AI anything about the report or image"):
+                with st.chat_message("user"):
+                    st.write(user_prompt)
+
+                # Add the response to the conversation history
+                st.session_state.conversation_history.append(f"User: {user_prompt}")
+
+                # Continue chat with Gemini
+                response, gemini_session = gemini_chat(gemini_session, user_prompt)
+
+                # Show Gemini's response
+                with st.chat_message("assistant"):
+                    st.write(response)
+                
+                # Update session with new chat session
+                st.session_state.chat_session = gemini_session
+
+                st.session_state.conversation_history.append(f"Gemini: {response}")
+
         except Exception as e:
             st.error(f"❌ Error: {e}. Please start over again")
-
-# Begin the chat interface with Gemini
-st.subheader("💬 Chat with AI")
-
-if user_prompt := st.chat_input("Ask AI anything about the report or image"):
-    with st.chat_message("user"):
-        st.write(user_prompt)
-
-    # Add the response to the conversation history
-    st.session_state.conversation_history.append(f"User: {user_prompt}")
-
-    # Continue chat with Gemini
-    response, gemini_session = gemini_chat(gemini_session, user_prompt)
-
-    # Show Gemini's response
-    with st.chat_message("assistant"):
-        st.write(response)
-    
-    # Update session with new chat session
-    st.session_state.chat_session = gemini_session
-
-    st.session_state.conversation_history.append(f"Gemini: {response}")

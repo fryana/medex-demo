@@ -19,7 +19,7 @@ API_KEY = "AIzaSyCtuCi_7qoxwNC-Em5WG7iKdMXp48oqkNY"  # 🔹 Replace with your Go
 genai.configure(api_key=API_KEY)
 
 # Streamlit UI Title
-st.title("🩺 AI-Powered Radiology Report Generator")
+st.title("🩺 MEDEX: AI-Powered Radiology Report Generator")
 st.write("📷 Upload a medical image, and AI will generate a detailed radiology report.")
 
 # Upload Image
@@ -46,7 +46,8 @@ def gemini_analysis(file_path):
         "temperature": 1,
         "top_p": 0.95,
         "top_k": 40,
-        "max_output_tokens": 8192,
+        # "max_output_tokens": 8192,
+        "max_output_tokens": 1024,
         "response_mime_type": "text/plain",
     }
 
@@ -102,7 +103,6 @@ if uploaded_file is not None:
     # Button to generate AI report
     if st.button("📝 Generate Radiology Report"):
         st.write("⏳ Processing... Please wait.")
-        
         try:
             # Save file temporarily
             temp_path = os.path.join("temp_uploaded_file.png")  # Change extension accordingly

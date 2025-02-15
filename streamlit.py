@@ -24,6 +24,10 @@ st.write("📷 Upload a medical image, and AI will generate a detailed radiology
 # Upload Image
 uploaded_file = st.file_uploader("📂 Choose a medical image...", type=["png", "jpg", "jpeg"])
 
+def upload_to_gemini(path, mime_type=None):
+    file = genai.upload_file(path, mime_type=mime_type)
+    return file
+
 # Function to encode image to base64 for AI processing
 def encode_image(image):
     image_bytes = io.BytesIO()
@@ -35,30 +39,33 @@ if uploaded_file is not None:
     image = Image.open(uploaded_file)
     st.image(image, caption="📸 Uploaded Medical Image", use_column_width=True)
 
-    # Convert image to base64
-    image_base64 = encode_image(image)
+    # # Convert image to base64
+    # image_base64 = encode_image(image)
 
     # Button to generate AI report
     if st.button("📝 Generate Radiology Report"):
         st.write("⏳ Processing... Please wait.")
-
-        st.write(uploaded_file)
         
         try:
+            # Save file temporarily
+            temp_path = os.path.join("temp_uploaded_file.png")  # Change extension accordingly
+        
+            with open(temp_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
             
-            # Send request to Google Gemini AI
-            model = genai.GenerativeModel("gemini-pro-vision")
-            response = model.generate_content(
-                ["Analyze this medical image and generate a detailed radiology report."],
-                [image_base64]
-            )
+            # # Send request to Google Gemini AI
+            # model = genai.GenerativeModel("gemini-pro-vision")
+            # response = model.generate_content(
+            #     ["Analyze this medical image and generate a detailed radiology report."],
+            #     [image_base64]
+            # )
 
-            # Extract AI-generated report
-            ai_report = response.text if response else "⚠️ No report generated."
+            # # Extract AI-generated report
+            # ai_report = response.text if response else "⚠️ No report generated."
 
-            # Display the AI Report
-            st.subheader("📑 AI-Generated Radiology Report:")
-            st.write(ai_report)
+            # # Display the AI Report
+            # st.subheader("📑 AI-Generated Radiology Report:")
+            # st.write(ai_report)
 
         except Exception as e:
             st.error(f"❌ Error: {e}")

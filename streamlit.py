@@ -119,7 +119,7 @@ if uploaded_file is not None:
             # Display the AI Report
             with st.chat_message("assistant"):
                 st.subheader("📑 AI-Generated Radiology Report (Gemini-2.0-Flash):")
-                st.write_stream(ai_report)
+                st.write(ai_report)
 
             # Store the conversation history (initial message)
             st.session_state.conversation_history.append(f"Gemini: {ai_report}")
@@ -136,7 +136,7 @@ if uploaded_file is not None:
                 response, gemini_session = gemini_chat(gemini_session, user_prompt)
 
                 with st.chat_message("assistant"):
-                    st.write_stream(response)
+                    st.write(response)
                 
                 # # Update session with new chat session
                 # st.session_state.chat_session = gemini_session

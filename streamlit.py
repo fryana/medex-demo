@@ -97,7 +97,7 @@ if 'conversation_history' not in st.session_state:
 if uploaded_file is not None:
     # Display the uploaded image
     image = Image.open(uploaded_file)
-    st.image(image, caption="📸 Uploaded Medical Image", use_column_width=True)
+    st.image(image, caption="📸 Uploaded Medical Image", use_container_width=True)
 
     # Button to generate AI report
     if st.button("📝 Generate Radiology Report"):

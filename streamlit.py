@@ -88,14 +88,16 @@ def gemini_chat(chat_session, user_input):
     # Return the response and updated chat session
     return gemini_response, chat_session
 
+# Initialize session state variables
+if 'chat_session' not in st.session_state:
+    st.session_state.chat_session = None
+if 'conversation_history' not in st.session_state:
+    st.session_state.conversation_history = []
+
 if uploaded_file is not None:
     # Display the uploaded image
     image = Image.open(uploaded_file)
     st.image(image, caption="📸 Uploaded Medical Image", use_column_width=True)
-
-    # Initialize the conversation history list (will be used across different interactions)
-    if 'conversation_history' not in st.session_state:
-        st.session_state.conversation_history = []
 
     # Button to generate AI report
     if st.button("📝 Generate Radiology Report"):
@@ -119,33 +121,39 @@ if uploaded_file is not None:
 
             # Display the AI Report
             with st.chat_message("assistant"):
-                st.subheader("📑 AI-Generated Radiology Report (Gemini-2.0-Flash):")
+                st.subheader("📑 AI-Generated Radiology Report:")
                 st.write(ai_report)
 
             # Store the conversation history (initial message)
-            st.session_state.conversation_history.append(f"Gemini: {ai_report}")
-
-            # Begin the chat interface with Gemini
-            st.subheader("💬 Chat with AI")
-
-            if user_prompt := st.chat_input("Ask AI anything about the report or image"):
-                with st.chat_message("user"):
-                    st.write(user_prompt)
-
-                # Add the response to the conversation history
-                st.session_state.conversation_history.append(f"User: {user_prompt}")
-
-                # Continue chat with Gemini
-                response, gemini_session = gemini_chat(gemini_session, user_prompt)
-
-                # Show Gemini's response
-                with st.chat_message("assistant"):
-                    st.write(response)
-                
-                # Update session with new chat session
-                st.session_state.chat_session = gemini_session
-
-                st.session_state.conversation_history.append(f"Gemini: {response}")
+            st.session_state.conversation_history.append({"role": "assistant", "text": ai_report})
 
         except Exception as e:
             st.error(f"❌ Error: {e}. Please start over again")
+
+# Chatbot interface (if the AI report has been generated)
+if st.session_state.chat_session:
+    st.write("💬 **Chat with the AI about the image/report:**")
+
+    # Display conversation history
+    for chat in st.session_state.conversation_history:
+        with st.chat_message(chat["role"]):
+            st.write(chat["text"])
+
+    # User input for chatbot
+    user_input = st.chat_input("Ask a question about the image/report...")
+    
+    if user_input:
+        with st.chat_message("user"):
+            st.write(user_input)
+
+        # Get AI response
+        ai_response, updated_session = gemini_chat(st.session_state.chat_session, user_input)
+        st.session_state.chat_session = updated_session  # Update session
+
+        # Display AI response
+        with st.chat_message("assistant"):
+            st.write(ai_response)
+
+        # Update conversation history
+        st.session_state.conversation_history.append({"role": "user", "text": user_input})
+        st.session_state.conversation_history.append({"role": "assistant", "text": ai_response})

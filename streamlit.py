@@ -42,7 +42,7 @@ if uploaded_file is not None:
     if st.button("📝 Generate Radiology Report"):
         st.write("⏳ Processing... Please wait.")
 
-        st.write("uploaded_file")
+        st.write(uploaded_file)
         
         try:
             

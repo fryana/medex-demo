@@ -74,15 +74,20 @@ def gemini_analysis(file_path):
 
     # return {"message": f"Gemini processed {file_path}",
     #         "report": response.text}
-    return response
+    return response, chat_session
+
+def chat_with_gemini(chat_session, prompt):
+    response = chat_session.send_message(prompt)
+    return response, chat_session
 
 if uploaded_file is not None:
     # Display the uploaded image
     image = Image.open(uploaded_file)
     st.image(image, caption="📸 Uploaded Medical Image", use_column_width=True)
 
-    # # Convert image to base64
-    # image_base64 = encode_image(image)
+    # Initialize the conversation history list (will be used across different interactions)
+    if 'conversation_history' not in st.session_state:
+        st.session_state.conversation_history = []
 
     # Button to generate AI report
     if st.button("📝 Generate Radiology Report"):
@@ -95,22 +100,31 @@ if uploaded_file is not None:
             with open(temp_path, "wb") as f:
                 f.write(uploaded_file.getbuffer())
 
-            response = gemini_analysis(temp_path)
-            
-            # # Send request to Google Gemini AI
-            # model = genai.GenerativeModel("gemini-pro-vision")
-            # response = model.generate_content(
-            #     ["Analyze this medical image and generate a detailed radiology report."],
-            #     [image_base64]
-            # )
+            # Initial report generation
+            response, gemini_session = gemini_analysis(temp_path)
 
             # Extract AI-generated report
             ai_report = response.text if response else "⚠️ No report generated."
 
             # Display the AI Report
-            st.subheader("📑 AI-Generated Radiology Report:")
+            st.subheader("📑 AI-Generated Radiology Report (Gemini-2.0-Flash):")
             st.write(ai_report)
 
+            # Begin the chat interface with Gemini
+            st.subheader("💬 Chat with Gemini")
+            user_prompt = st.text_input("Ask Gemini anything about the report or image:")
+
+            if user_prompt:
+                # Get chat response and update conversation history
+                chat_response, gemini_session = chat_with_gemini(
+                    gemini_session, user_prompt
+                )
+
+                # Show the chat history
+                st.write(chat_response)
+
         except Exception as e:
-            st.error(f"❌ Error: {e}")
+            st.error(f"❌ Error: {e}. Please start over again")
+
+        user_prompt = st.chat("Type to further analysis")
 

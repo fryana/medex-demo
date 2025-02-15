@@ -81,8 +81,9 @@ def gemini_chat(chat_session, user_input):
     # Send the message and get response
     response = chat_session.send_message(user_input)
 
-    # Get the text response from Gemini
-    gemini_response = response.text if response else "⚠️ No response generated."
+    # # Get the text response from Gemini
+    # gemini_response = response.text if response else "⚠️ No response generated."
+    gemini_response = "dummy response"
     
     # Return the response and updated chat session
     return gemini_response, chat_session
@@ -132,26 +133,20 @@ if uploaded_file is not None:
                 with st.chat_message("user"):
                     st.write(user_prompt)
 
+                # Add the response to the conversation history
+                st.session_state.conversation_history.append(f"User: {user_prompt}")
+
                 # Continue chat with Gemini
                 response, gemini_session = gemini_chat(gemini_session, user_prompt)
 
+                # Show Gemini's response
                 with st.chat_message("assistant"):
                     st.write(response)
                 
-                # # Update session with new chat session
-                # st.session_state.chat_session = gemini_session
-                
-                # # Add the response to the conversation history
-                # st.session_state.conversation_history.append(f"User: {user_prompt}")
-                # st.session_state.conversation_history.append(f"Gemini: {response}")
-
-                # # Show Gemini's response
-                # st.write(f"Gemini's response: {response}")
-                
-                # # Optionally display the entire conversation history
-                # st.write("### Conversation History:")
-                # for entry in st.session_state.conversation_history:
-                #     st.write(entry)
+                # Update session with new chat session
+                st.session_state.chat_session = gemini_session
+    
+                st.session_state.conversation_history.append(f"Gemini: {response}")
 
         except Exception as e:
             st.error(f"❌ Error: {e}. Please start over again")

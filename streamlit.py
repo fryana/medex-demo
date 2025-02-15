@@ -14,6 +14,7 @@ import openai  # For ChatGPT
 import base64
 from PIL import Image
 import io
+import os
 
 # Set up Google AI Studio API Key
 Gemini_API_KEY = "AIzaSyCtuCi_7qoxwNC-Em5WG7iKdMXp48oqkNY"  # 🔹 Replace with your Google AI API Key
@@ -78,64 +79,79 @@ def gemini_analysis(file_path):
     #         "report": response.text}
     return response
 
+# Function to call Claude AI
+def generate_claude_report(image_base64):
+    client = anthropic.Anthropic(api_key=CLAUDE_API_KEY)
+    response = client.messages.create(
+        model="claude-2",
+        max_tokens=500,
+        messages=[
+            {"role": "system", "content": "You are a radiology AI assistant."},
+            {"role": "user", "content": f"Analyze this medical image: {image_base64} and generate a radiology report."}
+        ]
+    )
+    return response.content[0]["text"] if response else "⚠️ No report generated."
+
+# Function to call OpenAI GPT
+def generate_gpt_report(image_base64):
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are a radiology AI assistant."},
+            {"role": "user", "content": f"Analyze this medical image: {image_base64} and generate a radiology report."}
+        ]
+    )
+    return response["choices"][0]["message"]["content"] if response else "⚠️ No report generated."
+
+
 if uploaded_file is not None:
     # Display the uploaded image
     image = Image.open(uploaded_file)
-    st.image(image, caption="📸 Uploaded Medical Image", use_column_width=True)
+    st.image(image, caption="📸 Uploaded Medical Image", use_container_width=True)
 
     # # Convert image to base64
     # image_base64 = encode_image(image)
 
-    # Button to generate AI report
-    if st.button("📝 Generate Radiology Report"):
-        st.write("⏳ Processing... Please wait.")
+    # # Button to generate AI report
+    # if st.button("📝 Generate Radiology Report"):
+    #     st.write("⏳ Processing... Please wait.")
     
+    # Save file temporarily
+    temp_path = os.path.join("temp_uploaded_file.png")  # Change extension accordingly
+
+    with open(temp_path, "wb") as f:
+        f.write(uploaded_file.getbuffer())
+
     # AI Model Selection Buttons
     st.write("### 🔍 Select an AI Model:")
     col1, col2, col3 = st.columns(3)
 
     if col1.button("🤖 Use Gemini AI"):
-        st.write("⏳ Processing with Gemini AI...")
-        report = generate_gemini_report(image_base64)
-        st.subheader("📑 AI-Generated Radiology Report:")
-        st.write(report)
-
-    if col2.button("🧠 Use Claude AI"):
-        st.write("⏳ Processing with Claude AI...")
-        report = generate_claude_report(image_base64)
-        st.subheader("📑 AI-Generated Radiology Report:")
-        st.write(report)
-
-    if col3.button("💡 Use GPT AI"):
-        st.write("⏳ Processing with GPT AI...")
-        report = generate_gpt_report(image_base64)
-        st.subheader("📑 AI-Generated Radiology Report:")
-        st.write(report)
-
-
-        try:
-            # Save file temporarily
-            temp_path = os.path.join("temp_uploaded_file.png")  # Change extension accordingly
-        
-            with open(temp_path, "wb") as f:
-                f.write(uploaded_file.getbuffer())
-
-            response = gemini_analysis(temp_path)
-            
-            # # Send request to Google Gemini AI
-            # model = genai.GenerativeModel("gemini-pro-vision")
-            # response = model.generate_content(
-            #     ["Analyze this medical image and generate a detailed radiology report."],
-            #     [image_base64]
-            # )
-
-            # Extract AI-generated report
-            ai_report = response.text if response else "⚠️ No report generated."
-
-            # Display the AI Report
-            st.subheader("📑 AI-Generated Radiology Report:")
-            st.write(ai_report)
-
+        try: 
+            st.write("⏳ Processing with Gemini AI...")
+            report = gemini_analysis(temp_path)
         except Exception as e:
             st.error(f"❌ Error: {e}")
+
+    if col2.button("🧠 Use Claude AI"):
+        try: 
+            st.write("⏳ Processing with Claude AI...")
+            report = generate_claude_report(temp_path)
+        except Exception as e:
+            st.error(f"❌ Error: {e}")
+
+    if col3.button("💡 Use GPT AI"):
+        try:
+            st.write("⏳ Processing with GPT AI...")
+            report = generate_gpt_report(temp_path)
+        except Exception as e:
+            st.error(f"❌ Error: {e}")
+  
+    # Extract AI-generated report
+    ai_report = report.text if report else "⚠️ No report generated."
+
+    # Display the AI Report
+    st.subheader("📑 AI-Generated Radiology Report:")
+    st.write(ai_report)
+
 

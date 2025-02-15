@@ -70,7 +70,7 @@ def gemini_analysis(file_path):
         ]
         )
 
-    response = chat_session.send_message("please help me analysis the xray. Add disclaimer that it is for demo purpose")
+    response = chat_session.send_message("please help me analysis the medial image. Add disclaimer that it is for demo purpose. if it is not a medical image then say you need to upload a proper one")
 
     return response, chat_session
 

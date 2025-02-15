@@ -99,8 +99,16 @@ if uploaded_file is not None:
     image = Image.open(uploaded_file)
     st.image(image, caption="📸 Uploaded Medical Image", use_container_width=True)
 
+    # AI Model Selection Buttons
+    st.write("### Select an AI Model")
+    col1, col2, col3 = st.columns(3)
+
+    press1 = col1.button("Use Gemini")
+    press2 = col2.button("Use ChatGPT")
+    press3 = col3.button("Use Claude")
+
     # Button to generate AI report
-    if st.button("📝 Generate Radiology Report"):
+    if press1:
         st.write("⏳ Processing... Please wait.")
         try:
             # Save file temporarily
@@ -128,6 +136,12 @@ if uploaded_file is not None:
 
         except Exception as e:
             st.error(f"❌ Error: {e}. Please start over again")
+    elif press2:
+        with st.chat_message("assistant"):
+            st.write("ChatGPT on the way...")
+    elif press3:
+        with st.chat_message("assistant"):
+            st.write("Claude on the way...")
 
 # Chatbot interface (if the AI report has been generated)
 if st.session_state.chat_session:

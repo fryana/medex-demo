@@ -132,6 +132,13 @@ if uploaded_file is not None:
         try: 
             st.write("⏳ Processing with Gemini AI...")
             report = gemini_analysis(temp_path)
+            
+            # Extract AI-generated report
+            ai_report = report.text if report else "⚠️ No report generated."
+        
+            # Display the AI Report
+            st.subheader("📑 AI-Generated Radiology Report:")
+            st.write(ai_report)
         except Exception as e:
             st.error(f"❌ Error: {e}")
 
@@ -139,6 +146,13 @@ if uploaded_file is not None:
         try: 
             st.write("⏳ Processing with Claude AI...")
             report = generate_claude_report(temp_path)
+            
+            # Extract AI-generated report
+            ai_report = report.text if report else "⚠️ No report generated."
+        
+            # Display the AI Report
+            st.subheader("📑 AI-Generated Radiology Report:")
+            st.write(ai_report)
         except Exception as e:
             st.error(f"❌ Error: {e}")
 
@@ -146,14 +160,17 @@ if uploaded_file is not None:
         try:
             st.write("⏳ Processing with GPT AI...")
             report = generate_gpt_report(temp_path)
+            
+            # Extract AI-generated report
+            ai_report = report.text if report else "⚠️ No report generated."
+        
+            # Display the AI Report
+            st.subheader("📑 AI-Generated Radiology Report:")
+            st.write(ai_report)
+    
         except Exception as e:
             st.error(f"❌ Error: {e}")
   
-    # Extract AI-generated report
-    ai_report = report.text if report else "⚠️ No report generated."
 
-    # Display the AI Report
-    st.subheader("📑 AI-Generated Radiology Report:")
-    st.write(ai_report)
 
 

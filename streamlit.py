@@ -81,9 +81,9 @@ def gemini_chat(chat_session, user_input):
     # Send the message and get response
     response = chat_session.send_message(user_input)
 
-    # # Get the text response from Gemini
-    # gemini_response = response.text if response else "⚠️ No response generated."
-    gemini_response = "dummy response"
+    # Get the text response from Gemini
+    gemini_response = response.text if response else "⚠️ No response generated."
+    # gemini_response = "dummy response"
     
     # Return the response and updated chat session
     return gemini_response, chat_session
@@ -119,10 +119,10 @@ if uploaded_file is not None:
             # Extract AI-generated report
             ai_report = response.text if response else "⚠️ No report generated."
 
-            # Display the AI Report
-            with st.chat_message("assistant"):
-                st.subheader("📑 AI-Generated Radiology Report:")
-                st.write(ai_report)
+            # # Display the AI Report
+            # with st.chat_message("assistant"):
+            #     st.subheader("📑 AI-Generated Radiology Report:")
+            #     st.write(ai_report)
 
             # Store the conversation history (initial message)
             st.session_state.conversation_history.append({"role": "assistant", "text": ai_report})
@@ -132,12 +132,15 @@ if uploaded_file is not None:
 
 # Chatbot interface (if the AI report has been generated)
 if st.session_state.chat_session:
-    st.write("💬 **Chat with the AI about the image/report:**")
-
     # Display conversation history
-    for chat in st.session_state.conversation_history:
+    for i, chat in enumerate(st.session_state.conversation_history):
+        if i == 0:
+            with st.chat_message("assistant"):
+                st.subheader("📑 AI-Generated Radiology Report:")
         with st.chat_message(chat["role"]):
             st.write(chat["text"])
+
+    st.write("💬 **Chat with the AI about the image/report:**")
 
     # User input for chatbot
     user_input = st.chat_input("Ask a question about the image/report...")

@@ -47,7 +47,7 @@ def gemini_analysis(file_path):
         "top_p": 0.95,
         "top_k": 40,
         # "max_output_tokens": 8192,
-        "max_output_tokens": 1024,
+        "max_output_tokens": 512,
         "response_mime_type": "text/plain",
     }
 
@@ -142,7 +142,7 @@ if st.session_state.chat_session:
             with st.chat_message(chat["role"]):
                 st.write(chat["text"])
 
-    st.write("💬 **Chat with the AI about the image/report:**")
+    # st.write("💬 **Chat with the AI about the image/report:**")
 
     # User input for chatbot
     user_input = st.chat_input("Ask a question about the image/report...")

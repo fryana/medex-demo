@@ -9,14 +9,18 @@ Original file is located at
 
 import streamlit as st
 import google.generativeai as genai
+import anthropic  # For Claude AI
+import openai  # For ChatGPT
 import base64
 from PIL import Image
 import io
-import os
 
 # Set up Google AI Studio API Key
-API_KEY = "AIzaSyCtuCi_7qoxwNC-Em5WG7iKdMXp48oqkNY"  # 🔹 Replace with your Google AI API Key
-genai.configure(api_key=API_KEY)
+Gemini_API_KEY = "AIzaSyCtuCi_7qoxwNC-Em5WG7iKdMXp48oqkNY"  # 🔹 Replace with your Google AI API Key
+CLAUDE_API_KEY = ""
+GPT_API_KEY = ""
+
+genai.configure(api_key=Gemini_API_KEY)
 
 # Streamlit UI Title
 st.title("🩺 AI-Powered Radiology Report Generator")
@@ -87,7 +91,30 @@ if uploaded_file is not None:
     # Button to generate AI report
     if st.button("📝 Generate Radiology Report"):
         st.write("⏳ Processing... Please wait.")
-        
+    
+    # AI Model Selection Buttons
+    st.write("### 🔍 Select an AI Model:")
+    col1, col2, col3 = st.columns(3)
+
+    if col1.button("🤖 Use Gemini AI"):
+        st.write("⏳ Processing with Gemini AI...")
+        report = generate_gemini_report(image_base64)
+        st.subheader("📑 AI-Generated Radiology Report:")
+        st.write(report)
+
+    if col2.button("🧠 Use Claude AI"):
+        st.write("⏳ Processing with Claude AI...")
+        report = generate_claude_report(image_base64)
+        st.subheader("📑 AI-Generated Radiology Report:")
+        st.write(report)
+
+    if col3.button("💡 Use GPT AI"):
+        st.write("⏳ Processing with GPT AI...")
+        report = generate_gpt_report(image_base64)
+        st.subheader("📑 AI-Generated Radiology Report:")
+        st.write(report)
+
+
         try:
             # Save file temporarily
             temp_path = os.path.join("temp_uploaded_file.png")  # Change extension accordingly

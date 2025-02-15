@@ -137,8 +137,10 @@ if st.session_state.chat_session:
         if i == 0:
             with st.chat_message("assistant"):
                 st.subheader("📑 AI-Generated Radiology Report:")
-        with st.chat_message(chat["role"]):
-            st.write(chat["text"])
+                st.write(chat["text"])
+        else:
+            with st.chat_message(chat["role"]):
+                st.write(chat["text"])
 
     st.write("💬 **Chat with the AI about the image/report:**")
 

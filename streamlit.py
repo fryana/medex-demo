@@ -78,9 +78,6 @@ def gemini_analysis(file_path):
 
 # Chat function to continue conversation with Gemini
 def gemini_chat(chat_session, user_input):
-    # Send user message to Gemini model
-    chat_session.append_message(role="user", content=user_input)
-
     # Send the message and get response
     response = chat_session.send_message(user_input)
 
@@ -113,6 +110,9 @@ if uploaded_file is not None:
             # Initial report generation
             response, gemini_session = gemini_analysis(temp_path)
 
+            # Save chat_session in session state for future use
+            st.session_state.chat_session = gemini_session
+
             # Extract AI-generated report
             ai_report = response.text if response else "⚠️ No report generated."
 
@@ -120,28 +120,31 @@ if uploaded_file is not None:
             st.subheader("📑 AI-Generated Radiology Report (Gemini-2.0-Flash):")
             st.write(ai_report)
 
+            # Store the conversation history (initial message)
+            st.session_state.conversation_history.append(f"Gemini: {ai_report}")
+
             # Begin the chat interface with Gemini
             st.subheader("💬 Chat with Gemini")
             user_prompt = st.text_input("Ask Gemini anything about the report or image:")
 
             if user_prompt:
                 # Continue chat with Gemini
-                gemini_response, updated_chat_session = gemini_chat(st.     session_state.chat_session, user_prompt)
+                response, gemini_session = gemini_chat(gemini_session, user_prompt)
                 
                 # Update session with new chat session
-                st.session_state.chat_session = updated_chat_session
+                st.session_state.chat_session = gemini_session
                 
                 # Add the response to the conversation history
                 st.session_state.conversation_history.append(f"User: {user_prompt}")
-                st.session_state.conversation_history.append(f"Gemini: {gemini_response}")
+                st.session_state.conversation_history.append(f"Gemini: {response}")
 
                 # Show Gemini's response
-                st.write(f"Gemini's response: {gemini_response}")
+                st.write(f"Gemini's response: {response}")
                 
-                # Optionally display the entire conversation history
-                st.write("### Conversation History:")
-                for entry in st.session_state.conversation_history:
-                    st.write(entry)
+                # # Optionally display the entire conversation history
+                # st.write("### Conversation History:")
+                # for entry in st.session_state.conversation_history:
+                #     st.write(entry)
 
         except Exception as e:
             st.error(f"❌ Error: {e}. Please start over again")

@@ -111,7 +111,8 @@ def generate_claude_report(image_base64):
 
 def generate_gpt_report(temp_path):
     # Stream OpenAI GPT-4o Vision response
-    client = openai(organization=GPT_ORG_KEY, project=GPT_API_KEY)
+    client = openai.OpenAI(api_key=GPT_API_KEY, organization=GPT_ORG_KEY)
+    print(client)
     
     stream = client.chat.completions.create(
         model="gpt-4o",

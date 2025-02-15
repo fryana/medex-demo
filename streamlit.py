@@ -46,8 +46,7 @@ def gemini_analysis(file_path):
         "temperature": 1,
         "top_p": 0.95,
         "top_k": 40,
-        # "max_output_tokens": 8192,
-        "max_output_tokens": 512,
+        "max_output_tokens": 8192,
         "response_mime_type": "text/plain",
     }
 

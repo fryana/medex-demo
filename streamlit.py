@@ -20,6 +20,7 @@ import os
 Gemini_API_KEY = "AIzaSyCtuCi_7qoxwNC-Em5WG7iKdMXp48oqkNY"  # 🔹 Replace with your Google AI API Key
 CLAUDE_API_KEY = st.secrets["CLAUDE_API_KEY"]
 GPT_API_KEY  = st.secrets["GPT_API_KEY"]
+GPT_ORG_KEY = st.secrets["GPT_ORG_KEY"]
 
 genai.configure(api_key=Gemini_API_KEY)
 
@@ -81,6 +82,7 @@ def gemini_analysis(file_path):
     #         "report": response.text}
     return response
 
+
 # Function to call Claude AI
 def generate_claude_report(image_base64):
     client = anthropic.Anthropic(api_key=CLAUDE_API_KEY)
@@ -95,16 +97,40 @@ def generate_claude_report(image_base64):
     return response.content[0]["text"] if response else "⚠️ No report generated."
 
 # Function to call OpenAI GPT
-def generate_gpt_report(image_base64):
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
+# def generate_gpt_report(image_base64):
+#     client = openai(organization=GPT_ORG_KEY, project=GPT_API_KEY)
+    
+#     response = openai.ChatCompletion.create(
+#         model="gpt-4",
+#         messages=[
+#             {"role": "system", "content": "You are a radiology AI assistant."},
+#             {"role": "user", "content": f"Analyze this medical image: {image_base64} and generate a radiology report."}
+#         ]
+#     )
+#     return response["choices"][0]["message"]["content"] if response else "⚠️ No report generated."
+
+def generate_gpt_report(temp_path):
+    # Stream OpenAI GPT-4o Vision response
+    client = openai(organization=GPT_ORG_KEY, project=GPT_API_KEY)
+    
+    stream = client.chat.completions.create(
+        model="gpt-4o",
         messages=[
             {"role": "system", "content": "You are a radiology AI assistant."},
-            {"role": "user", "content": f"Analyze this medical image: {image_base64} and generate a radiology report."}
-        ]
+            {"role": "user", "content": "Analyze this medical image and generate a radiology report.",
+             "attachments": [{"type": "image", "file_path": temp_path}]}
+        ],
+        stream=True,  # Enable streaming response
     )
-    return response["choices"][0]["message"]["content"] if response else "⚠️ No report generated."
 
+    # Display streaming response in real-time
+    report_text = ""
+    for chunk in stream:
+        if chunk.choices[0].delta.content is not None:
+            report_text += chunk.choices[0].delta.content
+            yield chunk.choices[0].delta.content  # Yield for streaming output in Streamlit
+
+    return report_text
 
 if uploaded_file is not None:
     # Display the uploaded image

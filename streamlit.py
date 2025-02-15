@@ -12,6 +12,7 @@ import google.generativeai as genai
 import base64
 from PIL import Image
 import io
+import os
 
 # Set up Google AI Studio API Key
 API_KEY = "AIzaSyCtuCi_7qoxwNC-Em5WG7iKdMXp48oqkNY"  # 🔹 Replace with your Google AI API Key
@@ -25,7 +26,12 @@ st.write("📷 Upload a medical image, and AI will generate a detailed radiology
 uploaded_file = st.file_uploader("📂 Choose a medical image...", type=["png", "jpg", "jpeg"])
 
 def upload_to_gemini(path, mime_type=None):
+    """Uploads the given file to Gemini.
+
+    See https://ai.google.dev/gemini-api/docs/prompting_with_media
+    """
     file = genai.upload_file(path, mime_type=mime_type)
+    print(f"Uploaded file '{file.display_name}' as: {file.uri}")
     return file
 
 # Function to encode image to base64 for AI processing
@@ -33,6 +39,42 @@ def encode_image(image):
     image_bytes = io.BytesIO()
     image.save(image_bytes, format="PNG")
     return base64.b64encode(image_bytes.getvalue()).decode("utf-8")
+
+def gemini_analysis(file_path):
+    # Create the model
+    generation_config = {
+        "temperature": 1,
+        "top_p": 0.95,
+        "top_k": 40,
+        "max_output_tokens": 8192,
+        "response_mime_type": "text/plain",
+    }
+
+    model = genai.GenerativeModel(
+        model_name="gemini-2.0-flash",
+        generation_config=generation_config,
+    )
+
+    files = [
+        upload_to_gemini(file_path, mime_type="image/png"),
+    ]
+
+    chat_session = model.start_chat(
+        history=[
+            {
+            "role": "user",
+            "parts": [
+                files[0],
+            ],
+            },
+        ]
+        )
+
+    response = chat_session.send_message("please help me analysis the xray")
+
+    # return {"message": f"Gemini processed {file_path}",
+    #         "report": response.text}
+    return response
 
 if uploaded_file is not None:
     # Display the uploaded image
@@ -52,6 +94,8 @@ if uploaded_file is not None:
         
             with open(temp_path, "wb") as f:
                 f.write(uploaded_file.getbuffer())
+
+            response = gemini_analysis(temp_path)
             
             # # Send request to Google Gemini AI
             # model = genai.GenerativeModel("gemini-pro-vision")
@@ -60,12 +104,12 @@ if uploaded_file is not None:
             #     [image_base64]
             # )
 
-            # # Extract AI-generated report
-            # ai_report = response.text if response else "⚠️ No report generated."
+            # Extract AI-generated report
+            ai_report = response.text if response else "⚠️ No report generated."
 
-            # # Display the AI Report
-            # st.subheader("📑 AI-Generated Radiology Report:")
-            # st.write(ai_report)
+            # Display the AI Report
+            st.subheader("📑 AI-Generated Radiology Report:")
+            st.write(ai_report)
 
         except Exception as e:
             st.error(f"❌ Error: {e}")

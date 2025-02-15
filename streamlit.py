@@ -128,18 +128,18 @@ if uploaded_file is not None:
             user_prompt = st.text_input("Ask Gemini anything about the report or image:")
 
             if user_prompt:
-                # Continue chat with Gemini
-                response, gemini_session = gemini_chat(gemini_session, user_prompt)
+                # # Continue chat with Gemini
+                # response, gemini_session = gemini_chat(gemini_session, user_prompt)
                 
                 # Update session with new chat session
                 st.session_state.chat_session = gemini_session
                 
                 # Add the response to the conversation history
                 st.session_state.conversation_history.append(f"User: {user_prompt}")
-                st.session_state.conversation_history.append(f"Gemini: {response}")
+                # st.session_state.conversation_history.append(f"Gemini: {response}")
 
-                # Show Gemini's response
-                st.write(f"Gemini's response: {response}")
+                # # Show Gemini's response
+                # st.write(f"Gemini's response: {response}")
                 
                 # # Optionally display the entire conversation history
                 # st.write("### Conversation History:")

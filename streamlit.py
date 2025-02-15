@@ -125,6 +125,3 @@ if uploaded_file is not None:
 
         except Exception as e:
             st.error(f"❌ Error: {e}. Please start over again")
-
-        user_prompt = st.chat("Type to further analysis")
-

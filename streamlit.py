@@ -18,6 +18,7 @@ import os
 
 # Set up Google AI Studio API Key
 Gemini_API_KEY = "AIzaSyCtuCi_7qoxwNC-Em5WG7iKdMXp48oqkNY"  # 🔹 Replace with your Google AI API Key
+CLAUDE_API_KEY = st.secrets["CLAUDE_API_KEY"]
 
 genai.configure(api_key=Gemini_API_KEY)
 

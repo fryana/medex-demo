@@ -117,25 +117,32 @@ if uploaded_file is not None:
             ai_report = response.text if response else "⚠️ No report generated."
 
             # Display the AI Report
-            st.subheader("📑 AI-Generated Radiology Report (Gemini-2.0-Flash):")
-            st.write(ai_report)
+            with st.chat_message("assistant"):
+                st.subheader("📑 AI-Generated Radiology Report (Gemini-2.0-Flash):")
+                st.write_stream(ai_report)
 
             # Store the conversation history (initial message)
             st.session_state.conversation_history.append(f"Gemini: {ai_report}")
 
             # Begin the chat interface with Gemini
             st.subheader("💬 Chat with Gemini")
-            user_prompt = st.text_input("Ask Gemini anything about the report or image:")
+            user_prompt = st.chat_input("Ask Gemini anything about the report or image:")
 
             if user_prompt:
-                # # Continue chat with Gemini
-                # response, gemini_session = gemini_chat(gemini_session, user_prompt)
+                with st.chat_message("user"):
+                    st.write(user_prompt)
+
+                # Continue chat with Gemini
+                response, gemini_session = gemini_chat(gemini_session, user_prompt)
+
+                with st.chat_message("assistant"):
+                    st.write_stream(response)
                 
-                # Update session with new chat session
-                st.session_state.chat_session = gemini_session
+                # # Update session with new chat session
+                # st.session_state.chat_session = gemini_session
                 
-                # Add the response to the conversation history
-                st.session_state.conversation_history.append(f"User: {user_prompt}")
+                # # Add the response to the conversation history
+                # st.session_state.conversation_history.append(f"User: {user_prompt}")
                 # st.session_state.conversation_history.append(f"Gemini: {response}")
 
                 # # Show Gemini's response

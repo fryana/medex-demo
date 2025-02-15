@@ -76,9 +76,19 @@ def gemini_analysis(file_path):
     #         "report": response.text}
     return response, chat_session
 
-def chat_with_gemini(chat_session, prompt):
-    response = chat_session.send_message(prompt)
-    return response, chat_session
+# Chat function to continue conversation with Gemini
+def gemini_chat(chat_session, user_input):
+    # Send user message to Gemini model
+    chat_session.append_message(role="user", content=user_input)
+
+    # Send the message and get response
+    response = chat_session.send_message(user_input)
+
+    # Get the text response from Gemini
+    gemini_response = response.text if response else "⚠️ No response generated."
+    
+    # Return the response and updated chat session
+    return gemini_response, chat_session
 
 if uploaded_file is not None:
     # Display the uploaded image
@@ -115,13 +125,23 @@ if uploaded_file is not None:
             user_prompt = st.text_input("Ask Gemini anything about the report or image:")
 
             if user_prompt:
-                # Get chat response and update conversation history
-                chat_response, gemini_session = chat_with_gemini(
-                    gemini_session, user_prompt
-                )
+                # Continue chat with Gemini
+                gemini_response, updated_chat_session = gemini_chat(st.     session_state.chat_session, user_prompt)
+                
+                # Update session with new chat session
+                st.session_state.chat_session = updated_chat_session
+                
+                # Add the response to the conversation history
+                st.session_state.conversation_history.append(f"User: {user_prompt}")
+                st.session_state.conversation_history.append(f"Gemini: {gemini_response}")
 
-                # Show the chat history
-                st.write(chat_response)
+                # Show Gemini's response
+                st.write(f"Gemini's response: {gemini_response}")
+                
+                # Optionally display the entire conversation history
+                st.write("### Conversation History:")
+                for entry in st.session_state.conversation_history:
+                    st.write(entry)
 
         except Exception as e:
             st.error(f"❌ Error: {e}. Please start over again")

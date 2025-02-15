@@ -70,10 +70,8 @@ def gemini_analysis(file_path):
         ]
         )
 
-    response = chat_session.send_message("please help me analysis the xray")
+    response = chat_session.send_message("please help me analysis the xray. Add disclaimer that it is for demo purpose")
 
-    # return {"message": f"Gemini processed {file_path}",
-    #         "report": response.text}
     return response, chat_session
 
 # Chat function to continue conversation with Gemini
@@ -109,6 +107,10 @@ if uploaded_file is not None:
 
     # Button to generate AI report
     if press1:
+        # clean history
+        st.session_state.chat_session = None
+        st.session_state.conversation_history = []
+
         st.write("⏳ Processing... Please wait.")
         try:
             # Save file temporarily
@@ -137,9 +139,15 @@ if uploaded_file is not None:
         except Exception as e:
             st.error(f"❌ Error: {e}. Please start over again")
     elif press2:
+        # clean history
+        st.session_state.chat_session = None
+        st.session_state.conversation_history = []
         with st.chat_message("assistant"):
             st.write("ChatGPT on the way...")
     elif press3:
+        # clean history
+        st.session_state.chat_session = None
+        st.session_state.conversation_history = []
         with st.chat_message("assistant"):
             st.write("Claude on the way...")
 
